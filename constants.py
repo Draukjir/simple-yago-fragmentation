@@ -13,5 +13,5 @@ MOVIE = "<http://schema.org/Movie>"
 
 #yago properties/relations
 SPOUSE = "<http://schema.org/spouse>"
-ACTED_IN = "<http://schema.org/actor>"
-DIRECTED = "<http://schema.org/director>"
+ACTED_IN_INVERSE = "<http://schema.org/actor>"
+DIRECTED_INVERSE = "<http://schema.org/director>"

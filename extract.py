@@ -6,8 +6,8 @@ import collectSubclasses
 # Rollennamen / Relationen aus YAGO
 role_names = [
     c.SPOUSE,
-    c.ACTED_IN,
-    c.DIRECTED 
+    c.ACTED_IN_INVERSE,
+    c.DIRECTED_INVERSE
 ]
 
 # Konzeptnamen / YAGO-Klassen
