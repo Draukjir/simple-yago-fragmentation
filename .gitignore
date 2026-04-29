@@ -3,3 +3,5 @@ __pycache__/
 
 *.ttl
 *.nt
+
+yago-fragment.owl
