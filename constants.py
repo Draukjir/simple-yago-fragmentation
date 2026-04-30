@@ -1,5 +1,5 @@
 #yago files
-TAXONOMY = "yago-schema.ttl"
+TAXONOMY = "yago-taxonomy.ttl"
 SCHEMA = "yago-schema.ttl"
 FACTS = "yago-facts.ttl"
 
