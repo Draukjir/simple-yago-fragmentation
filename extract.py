@@ -6,8 +6,8 @@ import collectSubclasses
 # Rollennamen / Relationen aus YAGO
 role_names = [
     c.SPOUSE,
-    c.ACTED_IN_INVERSE,
-    c.DIRECTED_INVERSE
+    c.ACTED_BY,
+    c.DIRECTED_BY
 ]
 
 # Konzeptnamen / YAGO-Klassen
@@ -22,6 +22,13 @@ subclassesOfActor = collectSubclasses.collect_subclasses(c.TAXONOMY, c.ACTOR)
 subclassesOfDirector = collectSubclasses.collect_subclasses(c.TAXONOMY, c.DIRECTOR)
 subclassesOfMovies = collectSubclasses.collect_subclasses(c.TAXONOMY, c.MOVIE)
 
+concept_pool = (
+    set(concept_names)
+    | subclassesOfActor
+    | subclassesOfDirector
+    | subclassesOfMovies
+)
+
 domain = set()
  
 parser = lightrdf.Parser()
@@ -33,58 +40,56 @@ with open("result.nt", "w") as f:
     
     # TEIL 1: SCHEMA
     print("Processing yago-schema.ttl")
-    for triple in parser.parse(c.SCHEMA, base_iri=None):
-        if not ("shacl" in triple[1]):
-            write_triple(triple)
+    for subj, pred, obj in parser.parse(c.SCHEMA, base_iri=None):
+        if not ("shacl" in pred or "shacl" in obj):
+            write_triple((subj, pred, obj))
     print("Done")
     
     #TEIL 2: TAXONOMIE
     print("Processing yago-taxonomy.ttl")
-    for triple in parser.parse(c.TAXONOMY, base_iri=None):
-        if not ("shacl" in triple[1]):
-            write_triple(triple)
+    for subj, pred, obj in parser.parse(c.TAXONOMY, base_iri=None):
+        if not ("shacl" in pred or "shacl" in obj):
+            write_triple((subj, pred, obj))
     
-    # TEIL 3: Erster Durchlauf durch die Fakten
+    # TEIL 3.1: Erster Durchlauf durch die Fakten
     # Rollennamen und Konzeptnamen durchgehen und Individuen hinzufügen
     print("Processing yago-facts.ttl == First Pass")
     for triple in parser.parse(c.FACTS, base_iri=None):
+        subj, pred, obj = triple # Subjekte sind Individuen, Prädikate können Rollen oder auch Typzuweisung sein, Objekte können Individuen oder auch Klassen sein
 
         # Behandlung der Rollennamen, also z.B. bei (FightClub, ACTOR, BradPitt) sowohl FightClub, als auch BradPitt hinzufügen
-        if triple[1] in role_names:
-            domain.add(triple[0])
-            domain.add(triple[2])
+        if pred in role_names:
+            domain.add(subj) #Individuum
+            domain.add(obj) #Individuum
 
         # Behandlung der Konzeptnamen, also z.B. bei (BradPitt, TYPE, Actor) -> Brad Pitt hinzufügen
-        if triple[1] == c.TYPE:
-            if triple[2] in concept_names:
-                domain.add(triple[0])
-            elif triple[2] in subclassesOfActor or triple[2] in subclassesOfDirector or triple[2] in subclassesOfMovies:
-                domain.add(triple[0])
-
+        if pred == c.TYPE:
+            if obj in concept_pool:
+                domain.add(subj)
 
     print("Collected {} individuals".format(len(domain)))
     print("Done")
     
-    # TEIL 3: Zweiter Durchlauf durch die Fakten
+    # TEIL 3.2: Zweiter Durchlauf durch die Fakten
     # Nur Tripel speichern, die die gewünschten Konzeptnamen / Rollennahmen enthalten und zu denen die gesammelten Individuen gehören
 
     print("Processing yago-facts.ttl == Second Pass")
     for triple in parser.parse(c.FACTS, base_iri=None):
-        # Ist es eine Rolle oder Typzuweisung
-        if triple[1] not in role_names and triple[1] != c.TYPE:
+        subj, pred, obj = triple
+
+        # Ist es eine Rolle oder Typzuweisung/Klassenzuweisung
+        if pred not in role_names and pred != c.TYPE:
             continue
         # Ist das Individuum Teil der Domäne
-        if triple[0] not in domain:
+        if subj not in domain:
             continue
-        # Ist das Individuum oder Klasse Teil der Domäne
-        if triple[2] not in domain:
+        # Ist das (erreichte) Individuum Teil der Domäne oder die zugewiesene Klasse Teil der Konzepte
+        if obj not in domain and obj not in concept_pool:
             continue
 
-        if triple[1] in role_names:
+        if pred in role_names:
             write_triple(triple)
-        elif triple[1] == c.TYPE:
-            obj = triple[2]
-
+        elif pred == c.TYPE:
             if obj in subclassesOfActor:
                 obj = c.ACTOR
             elif obj in subclassesOfDirector:
@@ -92,6 +97,6 @@ with open("result.nt", "w") as f:
             elif obj in subclassesOfMovies:
                 obj = c.MOVIE
                 
-            write_triple((triple[0], triple[1], obj))
+            write_triple((subj, pred, obj))
 
     print("Done == Fragment written to result.nt")
