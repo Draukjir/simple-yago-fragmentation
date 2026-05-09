@@ -33,7 +33,7 @@ domain = set()
  
 parser = lightrdf.Parser()
 
-with open("result.nt", "w") as f:
+with open("resultWithoutTarget.nt", "w") as f:
     
     def write_triple(triple):
         f.write("{} {} {} .\n".format(triple[0], triple[1], triple[2]))
@@ -49,6 +49,8 @@ with open("result.nt", "w") as f:
     print("Processing yago-taxonomy.ttl")
     for subj, pred, obj in parser.parse(c.TAXONOMY, base_iri=None):
         if not ("shacl" in pred or "shacl" in obj):
+            if subj in subclassesOfActor or obj in subclassesOfActor or subj == c.ACTOR or obj == c.ACTOR:
+                continue
             write_triple((subj, pred, obj))
     print("Done")
     
@@ -91,8 +93,8 @@ with open("result.nt", "w") as f:
         if pred in role_names:
             write_triple(triple)
         elif pred == c.TYPE:
-            if obj in subclassesOfActor:
-                obj = c.ACTOR
+            if obj in subclassesOfActor or obj == c.ACTOR:
+                obj = c.PERSON
             elif obj in subclassesOfFilmDirector:
                 obj = c.FILM_DIRECTOR
             elif obj in subclassesOfMovies:
@@ -100,4 +102,4 @@ with open("result.nt", "w") as f:
                 
             write_triple((subj, pred, obj))
 
-    print("Done == Fragment written to result.nt")  
+    print("Done == Fragment written to resultWithoutTarget.nt")  
