@@ -1,16 +1,18 @@
-def collect_subclasses(taxonomy_file: str, target_class: str):
+def collect_subclasses(target_class: str):
     import lightrdf
     from collections import defaultdict, deque
-    import constants as c
+    import signature
 
     parser = lightrdf.Parser()
 
+    sig = signature.Signature()
+
     children = defaultdict(set)
 
-    for triple in parser.parse(taxonomy_file, base_iri=None):
+    for triple in parser.parse(sig.TAXONOMY, base_iri=None):
         s, p, o = triple
 
-        if p == c.SUBCLASS:
+        if p == sig.SUBCLASS:
             children[o].add(s)
 
     subclasses = set()

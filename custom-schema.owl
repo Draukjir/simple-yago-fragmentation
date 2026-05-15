@@ -11,7 +11,7 @@
 <!-- Classes -->
 
 <Class rdf:about="http://yago-knowledge.org/resource/Actor"/>
-<Class rdf:about="http://yago-knowledge.org/resource/Director_creative_work"/>
+<Class rdf:about="http://yago-knowledge.org/resource/Film_director"/>
 <Class rdf:about="http://schema.org/Movie"/>
 <Class rdf:about="http://schema.org/Person"/>
 

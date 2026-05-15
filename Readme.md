@@ -19,10 +19,7 @@ You need two fragments, one with our target concept class and one without it.
 This requires the lightrdf library[ https://github.com/ozekik/lightrdf](https://github.com/ozekik/lightrdf) (fastest way I found to process lots of rdf)
 
 ```
-python extract.py
-```
-```
-python extractWithoutTarget.py
+python extractSampleFragments.py
 ```
 
 
@@ -35,5 +32,5 @@ This requires <https://github.com/ontodev/robot>
 robot merge --input custom-schema.owl --input result.nt --output yago-fragment.owl
 ```
 ```
-robot merge --input custom-schema.owl --input resultWithoutTarget.nt --output yago-fragment-without-target.owl
+robot merge --input custom-schema.owl --input result_without_target.nt --output yago-fragment-without-target.owl
 ```
