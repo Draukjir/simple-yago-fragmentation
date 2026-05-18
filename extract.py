@@ -1,11 +1,13 @@
 import signature
 import lightrdf
-import collectSubclasses
+import taxonomy
 from collections import defaultdict
 import random
 
 domain = set()
 sig = signature.Signature()
+sig.write_custom_schema("custom-schema.owl")
+
 all_individuals_for_concept = defaultdict(set)
 
 sampleSize = 1000
@@ -13,12 +15,17 @@ sampleSize = 1000
 print("Searching for all sublcasses")
 
 # Searching for all subclasses of all concept_names
-concept_pool = {}
-for c in sig.domain_signature:
-    concept_pool[c] = collectSubclasses.collect_subclasses(c) | {c}
+concept_pool = {
+    c: taxonomy.collect_subclasses(c) | {c}
+    for c in sig.concept_names
+}
 
 all_concepts = set().union(*concept_pool.values())
 target_pool = concept_pool[sig.target_concept]
+
+# Searching for the most general class for our target, so that the individual will stay in our fragment
+target_general_class = taxonomy.determine_most_general_class(sig.target_concept)
+
 print("Done")
 
 parser = lightrdf.Parser()
@@ -26,10 +33,15 @@ parser = lightrdf.Parser()
 f_full = open("result.nt", "w")
 f_no_target = open("result_without_target.nt", "w")
 
+written = set()
 def write_triple(triple, write_in_both=True):
-    f_full.write("{} {} {} .\n".format(triple[0], triple[1], triple[2]))
+    if triple in written:
+        return
+    written.add(triple)
+
+    f_full.write("{} {} {} .\n".format(*triple))
     if write_in_both:
-        f_no_target.write("{} {} {} .\n".format(triple[0], triple[1], triple[2]))
+        f_no_target.write("{} {} {} .\n".format(*triple))
 
 # Part 1: SCHEMA
 print("Processing yago-schema.ttl")
@@ -109,14 +121,11 @@ for subj, pred, obj in parser.parse(sig.FACTS, base_iri=None):
 
         if obj in target_pool:
             write_triple((subj, pred, sig.target_concept), False)
-            write_triple((subj, pred, "<http://schema.org/Person>"), True)
+            write_triple((subj, pred, target_general_class), True)
         else:
-            for c in sig.domain_signature - {sig.target_concept}:
+            for c in sig.concept_names:
                 if obj in concept_pool[c]:
                     write_triple((subj, pred, c), True)
-                    break
-            
-            if obj in sig.concept_names - sig.domain_signature:
-                write_triple((subj,pred, obj), True)
+                    #break
 
 print("Done")
