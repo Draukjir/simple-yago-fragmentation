@@ -14,7 +14,13 @@ class Signature:
         self.domain_signature = {
             "<http://yago-knowledge.org/resource/Actor>",
             "<http://yago-knowledge.org/resource/Film_director>",
-            "<http://schema.org/Movie>"
+            "<http://schema.org/Movie>",
+            "<http://yago-knowledge.org/resource/Author>",
+            "<http://yago-knowledge.org/resource/Scientist>",
+            "<http://yago-knowledge.org/resource/Musician>",
+            "<http://yago-knowledge.org/resource/Chef_Q3499072>",
+            "<http://yago-knowledge.org/resource/Single_music>",
+            "<http://yago-knowledge.org/resource/Album>"
         }
         
         # concept_names which will be in the domain - 3rd pass
@@ -22,14 +28,28 @@ class Signature:
         self.concept_names = {
             "<http://yago-knowledge.org/resource/Actor>",
             "<http://yago-knowledge.org/resource/Film_director>",
-            "<http://schema.org/Movie>"
+            "<http://schema.org/Movie>",
+            "<http://yago-knowledge.org/resource/Author>",
+            "<http://yago-knowledge.org/resource/Scientist>",
+            "<http://yago-knowledge.org/resource/Musician>",
+            "<http://yago-knowledge.org/resource/Chef_Q3499072>",
+            "<http://yago-knowledge.org/resource/Single_music>",
+            "<http://yago-knowledge.org/resource/Album>"
         }
 
         # role_names - 2nd pass
         self.role_names = {
             "<http://schema.org/spouse>",
             "<http://schema.org/actor>",
-            "<http://schema.org/director>"
+            "<http://schema.org/director>",
+            "<http://schema.org/award>",
+            "<http://schema.org/author>",
+            "<http://schema.org/musicBy>",
+            "<http://schema.org/birthPlace>",
+            "<http://schema.org/alumniOf>",
+            "<http://schema.org/productionCompany>",
+            "<http://yago-knowledge.org/resource/partOf>"
+
         }
 
         # target concept for definition extraction
